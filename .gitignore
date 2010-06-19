@@ -1,0 +1,4 @@
+base
+test/fixtures/project/data/test.sqlite
+test/fixtures/project/cache
+test/fixtures/project/log
