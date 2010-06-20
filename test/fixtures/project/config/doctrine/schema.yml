@@ -4,3 +4,5 @@ Blog:
     body:     clob
   actAs:
     sfDoctrineSlotTemplate:
+    I18n:
+      fields:   [body]
