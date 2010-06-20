@@ -12,4 +12,9 @@
  */
 class Blog extends BaseBlog
 {
+  public function setTableDefinition()
+  {
+    parent::setTableDefinition();
+    $this->getTable()->unshiftFilter(new sfDoctrineSlotRecordTestFilter());
+  }
 }
