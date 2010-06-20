@@ -26,6 +26,12 @@ class sfDoctrineSlotRelation extends Doctrine_Record_Generator
   );
 
   /**
+   * The name of the column that is "local" to the model implementing
+   * the sfDoctrineSlotTemplate behavior
+   */
+  protected $_localColumnName;
+
+  /**
    * Class constructor
    */
   public function __construct(array $options = array())
@@ -34,8 +40,8 @@ class sfDoctrineSlotRelation extends Doctrine_Record_Generator
   }
 
   public function buildRelation()
-  {
-    $this->buildForeignRelation('Slots');
+  { 
+    //$this->buildForeignRelation('Slots');
     $this->buildLocalRelation();
   }
 
@@ -55,8 +61,10 @@ class sfDoctrineSlotRelation extends Doctrine_Record_Generator
     $idDefinition = $this->_options['table']->getColumnDefinition($this->_options['table']->getIdentifier());
     $length = isset($idDefinition['length']) ? $idDefinition['length'] : null; 
 
+    $this->_localColumnName = $this->_options['table']->getTableName().'_id';
+
     $this->hasColumn(
-      $this->_options['table']->getTableName().'_id',
+      $this->_localColumnName,
       'integer',
       $length,
       array(
@@ -64,5 +72,13 @@ class sfDoctrineSlotRelation extends Doctrine_Record_Generator
         'primary'   => true,
       )
     );
+  }
+
+  /**
+   * @return string
+   */
+  public function getLocalColumnName()
+  {
+    return $this->_localColumnName;
   }
 }
