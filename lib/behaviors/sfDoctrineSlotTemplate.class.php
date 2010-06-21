@@ -52,7 +52,7 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
     Doctrine_Core::getTable('sfDoctrineSlot')->hasMany($this->getTable()->getComponentName(), array(
       'local'     => 'id',
       'foreign'   => $this->_plugin->getLocalColumnName(),
-      'refClass'  => $this->getRefClass(),
+      'refClass'  => $this->_getRefClass(),
       'onDelete'  => 'cascade',
     ));
 
@@ -60,7 +60,7 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
     $this->getTable()->hasMany('sfDoctrineSlot as Slots', array(
       'local'     => $this->_plugin->getLocalColumnName(),
       'foreign'   => 'id',
-      'refClass'  => $this->getRefClass(),
+      'refClass'  => $this->_getRefClass(),
       'onDelete'  => 'cascade',
     ));
   }
@@ -149,7 +149,7 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
       return;
     }
 
-    return Doctrine_Core::getTable($this->getRefClass())
+    return Doctrine_Core::getTable($this->_getRefClass())
       ->createQuery()
       ->delete()
       ->where('id = ?', $slot->id)
@@ -167,7 +167,7 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
   {
     $this->removeSlot($slot);
 
-    $class = $this->getRefClass();
+    $class = $this->_getRefClass();
     $ref = new $class();
     $ref->set('id', $slot->id);
     $ref->set($this->_plugin->getLocalColumnName(), $this->getInvoker()->id);
@@ -271,8 +271,30 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
    *
    * @return string
    */
-  public function getRefClass()
+  protected function _getRefClass()
   {
     return $this->_plugin->getTable()->getComponentName();
+  }
+
+  /**
+   * Adds the join to the slots table to a doctrine query.
+   *
+   * Use this to construct queries that won't require any extra queries
+   * when retrieving slots.
+   *
+   * @param Doctrine_Query $q Optional Doctrine query to append to
+   * @param string string $slotsAlias The alias to give the Slots relation
+   * @return Doctrine_Query
+   */
+  public function addSlotQueryTableProxy(Doctrine_Query $q = null, $slotsAlias = 'a')
+  {
+    if ($q === null)
+    {
+      $q = $this->getTable()->createQuery('c');
+    }
+
+    $q->leftJoin($q->getRootAlias().'.Slots '.$slotsAlias);
+
+    return $q;
   }
 }
