@@ -3,7 +3,7 @@
 require_once dirname(__FILE__).'/../../bootstrap/functional.php';
 require_once $_SERVER['SYMFONY'].'/vendor/lime/lime.php';
 
-$t = new lime_test(32);
+$t = new lime_test(33);
 $tbl = Doctrine_Core::getTable('Blog');
 
 $blog = new Blog();
@@ -103,6 +103,16 @@ $t->info('5 - Test the record filter.');
     $slots['url']->refresh();
     $blog->refresh(true);
     $t->is($slots['url']->getValue(), 'http://www.symfony-project.org', 'The slot value actually persisted to the db.');
+
+    $blogId = $blog->id;
+    Doctrine_Core::getTable('Blog')->getConnection()->clear();
+    $blog = Doctrine_Core::getTable('Blog')->find($blogId);
+
+    $blog->fromArray(array('url' => 'http://www.doctrine-project.org'));
+    $blog->save();
+
+    $slots['url']->refresh();
+    $t->is($slots['url']->getValue(), 'http://www.doctrine-project.org', 'The slot value sets correctly again after retrieving it fresh.');
 
   $t->info('  5.2 - Test the getter and setter with a field that is not a slot - exceptions are thrown.');
     try
