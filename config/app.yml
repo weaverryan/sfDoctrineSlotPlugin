@@ -14,6 +14,12 @@ all:
           class:      sfValidatorString
           options:    []
           messages:   []
+      url:
+        widget:    sfWidgetFormInputText
+        validator: sfValidatorUrl
+      email:
+        widget:    sfWidgetFormInputText
+        validator: sfValidatorEmail
       textarea:
         # the key of the widget or validator can also simply be the class name
         widget:    sfWidgetFormTextarea
