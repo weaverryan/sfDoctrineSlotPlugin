@@ -1,0 +1,32 @@
+all:
+  doctrine_slot:
+    field_service_class:   sfDoctrineSlotFieldService
+    default_type:    text
+    types:
+      text:
+        # the widget for this type, with options and attributes (both optional)
+        widget:
+          class:      sfWidgetFormInputText
+          options:    []
+          attributes: []
+        # the validator for this type, with options and attributes (both optional)
+        validator:
+          class:      sfValidatorString
+          options:    []
+          messages:   []
+      textarea:
+        # the key of the widget or validator can also simply be the class name
+        widget:    sfWidgetFormTextarea
+        validator: sfValidatorString
+      date:
+        widget:    sfWidgetFormDate
+        validator: sfValidatorDate
+      time:
+        widget:    sfWidgetFormTime
+        validator: sfValidatorTime
+      datetime:
+        widget:    sfWidgetFormDateTime
+        validator: sfValidatorDateTime
+      boolean:
+        widget:    sfWidgetFormInputCheckbox
+        validator: sfValidatorBoolean
