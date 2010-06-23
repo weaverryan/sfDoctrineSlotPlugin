@@ -1,5 +1,18 @@
-# You can find more information about this file on the symfony website:
-# http://www.symfony-project.org/reference/1_4/en/11-App
-
-# default values
-#all:
+all:
+  doctrine_slot:
+    field_service_class:   sfDoctrineSlotFieldTestService
+    default_type:    testing
+    types:
+      testing:
+        widget:
+          class:      sfWidgetFormInputCheckbox
+          options:
+            value_attribute_value: test
+          attributes:
+            class:    testing
+        validator:
+          class:      sfValidatorBoolean
+          options:
+            required:  true
+          messages:
+            required:  "this is a test"
