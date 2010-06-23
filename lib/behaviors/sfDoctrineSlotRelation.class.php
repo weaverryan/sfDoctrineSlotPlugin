@@ -22,7 +22,11 @@ class sfDoctrineSlotRelation extends Doctrine_Record_Generator
     'pluginTable'    => false,
     'children'       => array(),
     'cascadeDelete'  => true,
-    'appLevelDelete' => false
+    'appLevelDelete' => false,
+    'symfony'        => array(
+      'form'   => false,
+      'filter' => false,
+    ),
   );
 
   /**
@@ -72,6 +76,8 @@ class sfDoctrineSlotRelation extends Doctrine_Record_Generator
         'primary'   => true,
       )
     );
+
+    $this->getTable()->setOption('symfony', $this->_options['symfony']);
   }
 
   /**
