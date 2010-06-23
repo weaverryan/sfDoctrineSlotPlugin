@@ -3,7 +3,7 @@
 require_once dirname(__FILE__).'/../../bootstrap/functional.php';
 require_once $_SERVER['SYMFONY'].'/vendor/lime/lime.php';
 
-$t = new lime_test(31);
+$t = new lime_test(32);
 $tbl = Doctrine_Core::getTable('Blog');
 
 $blog = new Blog();
@@ -75,7 +75,7 @@ $t->info('4 - Test hasSlot(), hasSlots(), getSlot(), removeSlot(), addSlot()');
   $t->is($blog2->hasSlot('url'), true, '->hasSlot(url) on blog 2 returns true after using ->addSlot()');
   $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
   $t->is(count($slotRefs), 2, 'There should once again be two entries in BlogSlot');
-  
+
 $t->info('4 - Test createSlot()');
   $t->info('  4.1 - Test on an existing slot');
     $t->is($blog->createSlot('url')->id, $slot->id, '->createSlot(url) returns the existing slot.');
@@ -98,6 +98,10 @@ $t->info('5 - Test the record filter.');
     $blog->url = 'http://www.symfony-project.org';
     $slots = $blog->getSlotsByName(true);
     $t->is($slots['url']->getValue(), 'http://www.symfony-project.org', '->url as a setter correctly sets the existing slot.');
+
+    $blog->save();
+    $blog->refresh(true);
+    $t->is($slots['url']->getValue(), 'http://www.symfony-project.org', 'The slot value actually persisted to the db.');
 
   $t->info('  5.2 - Test the getter and setter with a field that is not a slot - exceptions are thrown.');
     try
