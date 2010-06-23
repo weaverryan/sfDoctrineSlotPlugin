@@ -86,7 +86,9 @@ class sfDoctrineSlotPluginConfiguration extends sfPluginConfiguration
       if (is_string($fieldConfig['validator']))
       {
         $class = $fieldConfig['validator'];
-        $validator = new $class();
+
+        // make the validator not required by default
+        $validator = new $class(array('required' => false));
       }
       else
       {
@@ -94,6 +96,12 @@ class sfDoctrineSlotPluginConfiguration extends sfPluginConfiguration
         $options = isset($fieldConfig['validator']['options']) ? $fieldConfig['validator']['options'] : array();
         $messages = isset($fieldConfig['validator']['messages']) ? $fieldConfig['validator']['messages'] : array();
 
+        if (!isset($options['required']))
+        {
+          $options['required'] = false;
+        }
+
+        // make the validator not required by default
         $validator = new $class($options, $messages);
       }
 
