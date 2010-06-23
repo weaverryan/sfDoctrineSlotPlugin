@@ -3,7 +3,7 @@
 require_once dirname(__FILE__).'/../../bootstrap/functional.php';
 require_once $_SERVER['SYMFONY'].'/vendor/lime/lime.php';
 
-$t = new lime_test(5);
+$t = new lime_test(6);
 Doctrine_Query::create()->from('Blog')->delete()->execute();
 $blog = new Blog();
 $blog->title = 'Unit test blog';
@@ -18,6 +18,7 @@ $t->is(count($form->getSlotFields()), 0, '->getSlotFields() returns 0 after addS
 $blog->createSlot('url', 'textarea', 'unit test');
 $form->addSlotFields();
 $t->is(count($form->getSlotFields()), 1, '->getSlotFields() returns 1 after addSlotFields() when there is one slot.');
+$t->is($form['url']->getValue(), 'unit test', 'The value of the slot was set as the default value.');
 
 $form = new BlogForm($blog);
 $form->addSlotFieldS(array('fake'));

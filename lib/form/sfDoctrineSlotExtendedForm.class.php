@@ -61,8 +61,19 @@ class sfDoctrineSlotExtendedForm
         $slotFields[] = $name;
         $fieldType = $this->_fieldService->getFieldType($slot->type);
 
+        if (!$fieldType)
+        {
+          $fieldType = $this->_fieldService->getDefaultFieldType();
+        }
+
+        if (!$fieldType)
+        {
+          throw new sfException(sprintf('No field type defined for "%s" and no default field to fall back to.', $slot->type));
+        }
+
         $widgetSchema[$name] = $fieldType->getWidget();
         $validatorSchema[$name] = $fieldType->getValidator();
+        $this->_subject->setDefault($name, $this->_subject->getObject()->get($name));
       }
     }
 
