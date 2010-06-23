@@ -76,16 +76,13 @@ $t->info('4 - Test hasSlot(), hasSlots(), getSlot(), removeSlot(), addSlot()');
   $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
   $t->is(count($slotRefs), 2, 'There should once again be two entries in BlogSlot');
   
-$t->info('4 - Test getOrCreateSlot()');
+$t->info('4 - Test createSlot()');
   $t->info('  4.1 - Test on an existing slot');
-    $t->is($blog->getOrCreateSlot('url')->id, $slot->id, '->getOrCreateSlot(url) returns the existing slot.');
+    $t->is($blog->createSlot('url')->id, $slot->id, '->createSlot(url) returns the existing slot.');
     count_slots($t, 1);
 
   $t->info('  4.2 - Test on a new slot');
-    $newSlot = $blog->getOrCreateSlot('new_slot', array(
-      'type' => 'MyType',
-      'default_value' => 'default_val'
-    ));
+    $newSlot = $blog->createSlot('new_slot', 'MyType', 'default_val');
 
     $t->is($newSlot->name, 'new_slot', 'The new slot\'s name was set correctly');
     $t->is($newSlot->type, 'MyType', 'The new slot\s type was set correctly');

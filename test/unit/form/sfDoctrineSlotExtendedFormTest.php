@@ -15,7 +15,7 @@ $t->is(count($form->getSlotFields()), 0, '->getSlotFields() on a form begins at 
 $form->addSlotFields();
 $t->is(count($form->getSlotFields()), 0, '->getSlotFields() returns 0 after addSlotFields() when there are no slots.');
 
-$blog->getOrCreateSlot('url', array('type' => 'textarea', 'default_value' => 'unit test'));
+$blog->createSlot('url', 'textarea', 'unit test');
 $form->addSlotFields();
 $t->is(count($form->getSlotFields()), 1, '->getSlotFields() returns 1 after addSlotFields() when there is one slot.');
 
@@ -24,5 +24,5 @@ $form->addSlotFieldS(array('fake'));
 $t->is(count($form->getSlotFields()), 0, '->getSlotFields() returns 0 after addSlotFields() with an array not including the actual slot name.');
 
 $form = new BlogForm($blog);
-$form->addSlotFieldS(array('url'));
+$form->addSlotFields(array('url'));
 $t->is(count($form->getSlotFields()), 1, '->getSlotFields() returns 1 after addSlotFields() with an array containing the true slot.');

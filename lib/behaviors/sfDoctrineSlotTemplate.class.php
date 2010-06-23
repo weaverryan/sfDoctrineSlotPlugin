@@ -189,10 +189,11 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
    *   * default_value
    *
    * @param   string  $name     The name of the slot to get or create
-   * @param   array   $options  The options array (see above)
+   * @param   string  $type     The name of the field type to use for this slot
+   * @param   string  $defaultValue An initial value to set to the field
    * @return  sfDoctrineSlot
    */
-  public function getOrCreateSlot($name, $options = array())
+  public function createSlot($name, $type = null, $defaultValue = null)
   {
     if (!$hasSlot = $this->hasSlot($name))
     {
@@ -202,16 +203,13 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
       }
 
       // @todo don't hardcode the default type
-      $type = isset($options['type']) ? $options['type'] : 'Text';
+      $type = ($type !== null) ? $type : 'Text';
 
       $slot = new sfDoctrineSlot();
       $slot->name = $name;
       $slot->type = $type;
       
-      if (isset($options['default_value']))
-      {
-        $slot->value = $options['default_value'];
-      }
+      $slot->value = $defaultValue;
       $slot->save();
 
       $this->addSlot($slot);
