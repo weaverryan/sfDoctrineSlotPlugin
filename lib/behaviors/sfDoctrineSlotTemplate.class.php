@@ -291,7 +291,13 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
       $q = $this->getTable()->createQuery('c');
     }
 
-    $q->leftJoin($q->getRootAlias().'.Slots '.$slotsAlias);
+    $rootAlias = $q->getRootAlias();
+    if ($rootAlias == $slotsAlias)
+    {
+      throw new sfException(sprintf('The root alias "%s" cannot match the Slots alias "%s"', $rootAlias));
+    }
+
+    $q->leftJoin($rootAlias.'.Slots '.$slotsAlias);
 
     return $q;
   }
