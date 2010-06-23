@@ -100,6 +100,7 @@ $t->info('5 - Test the record filter.');
     $t->is($slots['url']->getValue(), 'http://www.symfony-project.org', '->url as a setter correctly sets the existing slot.');
 
     $blog->save();
+    $slots['url']->refresh();
     $blog->refresh(true);
     $t->is($slots['url']->getValue(), 'http://www.symfony-project.org', 'The slot value actually persisted to the db.');
 
