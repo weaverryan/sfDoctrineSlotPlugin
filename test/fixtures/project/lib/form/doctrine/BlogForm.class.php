@@ -12,5 +12,8 @@ class BlogForm extends BaseBlogForm
 {
   public function configure()
   {
+    unset(
+      $this['slots_list']
+    );
   }
 }
