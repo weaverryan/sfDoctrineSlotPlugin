@@ -63,4 +63,11 @@ $browser->info('1 - Submit a form with slot fields and check the results')
       'type'  => 'url',
     ))
   ->end()
+
+  ->with('response')->begin()
+    ->isStatusCode(200)
+    ->checkElement('div.title', 'functional test title')
+    ->checkElement('div.body', 'a short post')
+    ->checkElement('div.link_url', 'http://www.sympalphp.org')
+  ->end()
 ;
