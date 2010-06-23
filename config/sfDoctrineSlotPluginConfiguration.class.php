@@ -50,6 +50,11 @@ class sfDoctrineSlotPluginConfiguration extends sfPluginConfiguration
    */
   protected function createDoctrineSlotFieldService()
   {
+    $class = sfConfig::get('app_doctrine_slot_field_service_class', 'sfDoctrineSlotFieldService');
+    $defaultField = sfConfig::get('app_doctrine_slot_default_type', 'text');
+
+    $service = new $class($defaultField);
+
     // gather all of the sfDoctrineSlotFieldType objects from config
     $fieldConfigs = sfConfig::get('app_doctrine_slot_types', array());
     $fields = array();
@@ -92,12 +97,9 @@ class sfDoctrineSlotPluginConfiguration extends sfPluginConfiguration
         $validator = new $class($options, $messages);
       }
 
-      $fields[$name] = new sfDoctrineSlotFieldType($name, $widget, $validator);
+      $service[$name] = new sfDoctrineSlotFieldType($widget, $validator);
     }
 
-    $class = sfConfig::get('app_doctrine_slot_field_service_class', 'sfDoctrineSlotFieldService');
-    $defaultField = sfConfig::get('app_doctrine_slot_default_type', 'text');
-
-    return new $class($fields, $defaultField);
+    return $service;
   }
 }
