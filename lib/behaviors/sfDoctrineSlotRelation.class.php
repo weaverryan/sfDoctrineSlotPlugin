@@ -43,10 +43,15 @@ class sfDoctrineSlotRelation extends Doctrine_Record_Generator
     $this->_options = Doctrine_Lib::arrayDeepMerge($this->_options, $options);
   }
 
+  /**
+   * Normally builds the relation from this table to the table that's
+   * implementing this "plugin" (i.e. sfDoctrineSlotTemplate). In this
+   * case, sfDoctrineSlotTemplate takes care of everything.
+   *
+   * @return void
+   */
   public function buildRelation()
   { 
-    //$this->buildForeignRelation('Slots');
-    $this->buildLocalRelation();
   }
 
   /**
