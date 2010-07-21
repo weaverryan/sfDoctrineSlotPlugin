@@ -219,6 +219,20 @@ Several other methods are available. See
 [sfDoctrineSlotTemplate](http://github.com/weaverryan/sfDoctrineSlotPlugin/blob/master/lib/behaviors/sfDoctrineSlotTemplate.class.php)
 for more methods and their full details.
 
+Known Issues
+------------
+
+Be careful with how you name your slots. This functionality uses a lot of
+Doctrine magic, and each column (e.g. `my_field`) is translated internally
+to the lower camel-case getter/setter (e.g. `getMyField()`) and then translated
+back to the field name (e.g. `my_field`). Some field names will not make
+this translate well. For example:
+
+    my_slot_1 => getMySlot1() => my_slot1
+
+In other words, by the time this plugin is notified of the field, it is
+improperly named.
+
 Care to Contribute?
 -------------------
 
