@@ -165,6 +165,11 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
    */
   public function addSlot(sfDoctrineSlot $slot)
   {
+    if ($this->getInvoker()->isNew())
+    {
+      throw new sfException('Slots cannot be added to an object until it has been persisted.');
+    }
+
     $this->removeSlot($slot);
 
     $class = $this->_getRefClass();
