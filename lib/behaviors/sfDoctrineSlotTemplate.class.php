@@ -78,11 +78,11 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
     $invoker = $this->getInvoker();
     if (!isset($invoker->_slotsByName) || $invoker->_slotsByName === null || $force)
     {
-      $slotsByName = array();
+      $slotsByName = new Doctrine_Collection($this->getInvoker()->Slots->getTable());
+
       foreach ($this->getInvoker()->Slots as $slot)
       {
-        $slotsByName[$slot->name] = $slot;
-        
+        $slotsByName->add($slot, $slot->name);
       }
       $invoker->mapValue('_slotsByName', $slotsByName);
     }

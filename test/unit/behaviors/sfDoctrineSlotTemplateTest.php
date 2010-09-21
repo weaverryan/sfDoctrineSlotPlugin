@@ -3,7 +3,7 @@
 require_once dirname(__FILE__).'/../../bootstrap/functional.php';
 require_once $_SERVER['SYMFONY'].'/vendor/lime/lime.php';
 
-$t = new lime_test(33);
+$t = new lime_test(34);
 $tbl = Doctrine_Core::getTable('Blog');
 
 $blog = new Blog();
@@ -143,6 +143,23 @@ $t->info('6 - Test the addSlotQueryTableProxy() method on the template');
   $dql = 'SELECT b.id AS b__id, b.title AS b__title, s.id AS s__id, s.name AS s__name, s.type AS s__type, s.value AS s__value, s.created_at AS s__created_at, s.updated_at AS s__updated_at FROM blog b LEFT JOIN blog_slot b2 ON (b.id = b2.blog_id) LEFT JOIN sf_doctrine_slot s ON s.id = b2.id WHERE (b.id = ? AND b.id = ?)';
   $t->is($q->getSqlQuery(), $dql, 'The addSlotQuery table method joins correctly.');
 
+$t->info('7 - Test the toArray() - _slotsByName should map correctly');
+  $slot1 = Doctrine_Core::getTable('sfDoctrineSlot')->findOneByName('url');
+  $slot2 = Doctrine_Core::getTable('sfDoctrineSlot')->findOneByName('new_slot');
+
+  $expected = array(
+    'id'    => $blog->id,
+    'title' => 'Unit test',
+    '_slotsByName' => array(
+      'url'       => $slot1->toArray(),
+      'new_slot'  => $slot2->toArray(),
+    ),
+  );
+
+  $blogArray = $blog->toArray();
+  unset($blogArray['Translation'], $blogArray['Slots']);
+
+  $t->is($blogArray, $expected, 'The slotted model can toArray() without bad Doctrine_Record references on _slotsByName');
 
 // tests getSlotsByName() to a given array of slot names and values
 function test_slots_by_name(lime_test $t, Blog $blog, $slots)
