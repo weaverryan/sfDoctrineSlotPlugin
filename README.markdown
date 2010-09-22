@@ -107,6 +107,11 @@ The `createSlot()` method also has an optional string second argument
 
     $blog->createSlot('link_url', 'url', 'http://www.sympalphp.org');
 
+>**NOTE**
+>Like a real field, the `link_url` value won't be persisted into the
+>database until you call `$blog->save()`. The same is true for the
+>`removeSlot()` method.
+
 Field types
 -----------
 
@@ -207,7 +212,10 @@ model.
  * `createSlot($name)` Gets or creates a slot of the given name and returns
    the `sfDoctrineSlot` object. If the slot doesn't already exist, this will
    create a new `sfDoctrineSlot` object and link it to your model via the
-   many-to-many relationship behind the scenes.
+   many-to-many relationship behind the scenes. While the `sfDoctrineSlot`
+   object is created immediately, you'll need to call `save()` on your
+   record before the link is completed in the database. This means that
+   the slot will act just like setting any normal field.
 
  * `getSlot($name)` Equivalent to `createSlot($name)` except that it returns
    null of the slot doesn't exist.
@@ -215,7 +223,8 @@ model.
  * `hasSlot($name)` Returns true if the slot exists
 
  * `removeSlot($name)` Removes the slot reference to this object (if it
-   exists). The `sfDoctrineSlot` object itself will remain.
+   exists). The `sfDoctrineSlot` object itself will remain. You must call
+   `save()` on your record before the reference is removed in the database.
 
 Several other methods are available. See
 [sfDoctrineSlotTemplate](http://github.com/weaverryan/sfDoctrineSlotPlugin/blob/master/lib/behaviors/sfDoctrineSlotTemplate.class.php)

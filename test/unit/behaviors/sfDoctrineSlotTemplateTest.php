@@ -3,7 +3,7 @@
 require_once dirname(__FILE__).'/../../bootstrap/functional.php';
 require_once $_SERVER['SYMFONY'].'/vendor/lime/lime.php';
 
-$t = new lime_test(34);
+$t = new lime_test(45);
 $tbl = Doctrine_Core::getTable('Blog');
 
 $blog = new Blog();
@@ -58,10 +58,20 @@ $t->info('4 - Test hasSlot(), hasSlots(), getSlot(), removeSlot(), addSlot()');
   $blog2->getSlotsByName(true); // refresh the slots
   $t->is($blog2->hasSlot('url'), true, '->hasSlot(url) on blog 2 returns true now, we just added the slot');
 
+  // remove a slot but don't save
   $blog2->removeSlot('url');
+  $t->is($blog2->hasSlot('url'), false, '->hasSlot(url) on blog 2 returns false after removing the slot');
   $blog2->refreshRelated('Slots');
   $blog2->getSlotsByName(true); // refresh the slots
-  $t->is($blog2->hasSlot('url'), false, '->hasSlot(url) on blog 2 returns false after removing the slot');
+  $t->is($blog2->hasSlot('url'), true, '->hasSlot(url) on blog 2 returns true after removing the slot but not saving');
+  $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
+  $t->is(count($slotRefs), 2, 'There should still be 2 BlogSlot objects');
+
+  $blog2->removeSlot('url');
+  $blog2->save();
+  $blog2->refreshRelated('Slots');
+  $blog2->getSlotsByName(true); // refresh the slots
+  $t->is($blog2->hasSlot('url'), false, '->hasSlot(url) on blog 2 returns true after removing the slot and saving');
   $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
   $t->is(count($slotRefs), 1, 'There should once again be only one entry in BlogSlot');
 
@@ -69,30 +79,45 @@ $t->info('4 - Test hasSlot(), hasSlots(), getSlot(), removeSlot(), addSlot()');
   $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
   $t->is(count($slotRefs), 1, 'Removing a non-existent slot does nothing.');
 
+  // add a slot, but don't persist
   $blog2->addSlot($slot);
   $blog2->refreshRelated('Slots');
   $blog2->getSlotsByName(true); // refresh the slots
-  $t->is($blog2->hasSlot('url'), true, '->hasSlot(url) on blog 2 returns true after using ->addSlot()');
+  $t->is($blog2->hasSlot('url'), false, '->hasSlot(url) on blog 2 returns false. addSlot() was called, but not saved');
+  $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
+  $t->is(count($slotRefs), 1, 'There should still be one entry in BlogSlot');
+
+  // add a slot, and persist
+  $blog2->addSlot($slot);
+  $blog2->save();
+  $blog2->refreshRelated('Slots');
+  $blog2->getSlotsByName(true); // refresh the slots
+  $t->is($blog2->hasSlot('url'), true, '->hasSlot(url) on blog 2 returns true after using ->addSlot() and saving');
   $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
   $t->is(count($slotRefs), 2, 'There should once again be two entries in BlogSlot');
 
-$t->info('4 - Test createSlot()');
-  $t->info('  4.1 - Test on an existing slot');
+$t->info('5 - Test createSlot()');
+  $t->info('  5.1 - Test on an existing slot');
     $t->is($blog->createSlot('url')->id, $slot->id, '->createSlot(url) returns the existing slot.');
     count_slots($t, 1);
 
-  $t->info('  4.2 - Test on a new slot');
+  $t->info('  5.2 - Test on a new slot');
     $newSlot = $blog->createSlot('new_slot', 'MyType', 'default_val');
 
     $t->is($newSlot->name, 'new_slot', 'The new slot\'s name was set correctly');
     $t->is($newSlot->type, 'MyType', 'The new slot\s type was set correctly');
     $t->is($newSlot->value, 'default_val', 'The new slot\s value was set correctly');
     count_slots($t, 2);
-    $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
-    $t->is(count($slotRefs), 3, 'There are now 3 entries on BlogSlot');
 
-$t->info('5 - Test the record filter.');
-  $t->info('  5.1 - Test the getter and setter with a real slot.');
+    $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
+    $t->is(count($slotRefs), 2, 'The new BlogSlot reference is not added because $blog has not been saved');
+
+    $blog->save();
+    $slotRefs = Doctrine_Query::create()->from('BlogSlot')->execute();
+    $t->is(count($slotRefs), 3, 'There are now 3 entries on BlogSlot because the $blog has been saved and the ref persisted');
+
+$t->info('6 - Test the record filter.');
+  $t->info('  6.1 - Test the getter and setter with a real slot.');
     $t->is($blog->url, 'http://www.sympalphp.org', '->url correctly returns the slot value for this existing slot.');
 
     $blog->url = 'http://www.symfony-project.org';
@@ -114,7 +139,7 @@ $t->info('5 - Test the record filter.');
     $slots['url']->refresh();
     $t->is($slots['url']->getValue(), 'http://www.doctrine-project.org', 'The slot value sets correctly again after retrieving it fresh.');
 
-  $t->info('  5.2 - Test the getter and setter with a field that is not a slot - exceptions are thrown.');
+  $t->info('  6.2 - Test the getter and setter with a field that is not a slot - exceptions are thrown.');
     try
     {
       $blog->fake;
@@ -135,7 +160,7 @@ $t->info('5 - Test the record filter.');
       $t->pass('Exception thrown on setter');
     }
 
-$t->info('6 - Test the addSlotQueryTableProxy() method on the template');
+$t->info('7 - Test the addSlotQueryTableProxy() method on the template');
   $tbl = Doctrine_Core::getTable('Blog');
   $q = $tbl->createQuery('b')->where('id = ?', $blog->id);
   $q = $tbl->addSlotQuery($q, 's');
@@ -143,7 +168,7 @@ $t->info('6 - Test the addSlotQueryTableProxy() method on the template');
   $dql = 'SELECT b.id AS b__id, b.title AS b__title, s.id AS s__id, s.name AS s__name, s.type AS s__type, s.value AS s__value, s.created_at AS s__created_at, s.updated_at AS s__updated_at FROM blog b LEFT JOIN blog_slot b2 ON (b.id = b2.blog_id) LEFT JOIN sf_doctrine_slot s ON s.id = b2.id WHERE (b.id = ? AND b.id = ?)';
   $t->is($q->getSqlQuery(), $dql, 'The addSlotQuery table method joins correctly.');
 
-$t->info('7 - Test the toArray() - _slotsByName should map correctly');
+$t->info('8 - Test the toArray() - _slotsByName should map correctly');
   $slot1 = Doctrine_Core::getTable('sfDoctrineSlot')->findOneByName('url');
   $slot2 = Doctrine_Core::getTable('sfDoctrineSlot')->findOneByName('new_slot');
 
@@ -161,6 +186,36 @@ $t->info('7 - Test the toArray() - _slotsByName should map correctly');
 
   $t->is($blogArray, $expected, 'The slotted model can toArray() without bad Doctrine_Record references on _slotsByName');
 
+$t->info('7 - Test an example where slots are naturally added to the record');
+  Doctrine_Query::create()->from('Blog')->delete()->execute();
+  Doctrine_Query::create()->from('sfDoctrineSlot')->delete()->execute();
+
+  $blog = new Blog();
+  $blog->title = 'whatever';
+  $blog->save();
+
+  $blog->createSlot('a_slot');
+  $blog->a_slot = 'something';
+
+  $t->is($blog->a_slot, 'something', '$blog->a_slot returns the correct value before being persisted');
+
+  // save the blog and supposedly its relations
+  $blog->save();
+  // clear the Blog identity map
+  Doctrine_Core::getTable('Blog')->clear();
+
+  $fromDb = Doctrine::getTable('Blog')->find($blog->id); // load it afresh
+  $t->is($fromDb->a_slot, 'something', 'After persisting and refreshing, ->a_slot is still correct');
+
+  // clear the Blog identity map
+  Doctrine_Core::getTable('Blog')->clear();
+  $q = Doctrine_Query::create()
+  ->from('Blog b')
+  ->leftJoin('b.Slots s');
+  $fromDb2 = $q->fetchOne();
+
+  $t->is($fromDb2->a_slot, 'something', 'After persisting and refreshing with a join, ->a_slot is still correct');
+
 // tests getSlotsByName() to a given array of slot names and values
 function test_slots_by_name(lime_test $t, Blog $blog, $slots)
 {
@@ -170,5 +225,5 @@ function test_slots_by_name(lime_test $t, Blog $blog, $slots)
 
 function count_slots(lime_test $t, $numSlots)
 {
-  return (Doctrine_Query::create()->from('sfDoctrineSlot')->count() == $numSlots);
+  $t->is(Doctrine_Query::create()->from('sfDoctrineSlot')->count(), $numSlots, sprintf('The total number of slots equals "%s"', $numSlots));
 }

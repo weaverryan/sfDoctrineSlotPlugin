@@ -132,10 +132,9 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
   }
 
   /**
-   * Removes the given slot from this record
+   * Removes the given slot from this record.
    *
    * @param string|sfDoctrineSlot $slot The slot to remove - the object or just the name
-   * @return Doctrine_Collection
    */
   public function removeSlot($slot)
   {
@@ -144,46 +143,46 @@ class sfDoctrineSlotTemplate extends Doctrine_Template
       $slot = $this->getSlot($slot);
     }
 
+    // do nothing if the slot doesn't exist
     if (!$slot)
     {
       return;
     }
 
-    return Doctrine_Core::getTable($this->_getRefClass())
-      ->createQuery()
-      ->delete()
-      ->where('id = ?', $slot->id)
-      ->andWhere($this->_plugin->getLocalColumnName().' = ?', $this->getInvoker()->id)
-      ->execute();
+    // make sure the slots are initialized
+    $this->getSlotsByName();
+
+    $this->getInvoker()->unlink('Slots', array($slot->id));
+    
+    // add the slot to the indexed, _slotsByName array
+    $slotsByName = $this->getInvoker()->_slotsByName;
+    unset($slotsByName[$slot->name]);
+    $this->getInvoker()->mapValue('_slotsByName', $slotsByName);
   }
 
   /**
    * Adds the given slot to this record
    *
    * @param sfDoctrineSlot $slot
-   * @return Doctrine_Record
    */
   public function addSlot(sfDoctrineSlot $slot)
   {
-    if ($this->getInvoker()->isNew())
+    // if the slot already exists, just return
+    if ($this->hasSlot($slot['name']))
     {
-      throw new sfException('Slots cannot be added to an object until it has been persisted.');
+      return;
     }
 
-    $this->removeSlot($slot);
-
-    $class = $this->_getRefClass();
-    $ref = new $class();
-    $ref->set('id', $slot->id);
-    $ref->set($this->_plugin->getLocalColumnName(), $this->getInvoker()->id);
-    $ref->save();
-
     // make sure the slots are initialized
-    $slotsByName = $this->getSlotsByName();
+    $this->getSlotsByName();
+
+    // save the slot on the true Slots relation so that save cascades down
+    $this->getInvoker()->link('Slots', array($slot->id));
+
+    // add the slot to the indexed, _slotsByName array
+    $slotsByName = $this->getInvoker()->_slotsByName;
     $slotsByName[$slot->name] = $slot;
     $this->getInvoker()->mapValue('_slotsByName', $slotsByName);
-
-    return $ref;
   }
 
   /**
