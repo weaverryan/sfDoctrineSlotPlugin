@@ -55,7 +55,7 @@ Finally, update:
 
     svn up
 
-# Setup
+### Setup
 
 In your `config/ProjectConfiguration.class.php` file, make sure you have
 the plugin enabled.
