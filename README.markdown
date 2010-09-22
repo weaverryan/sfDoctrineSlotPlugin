@@ -5,7 +5,7 @@ Allows for non-existent columns of data on a model to be persisted and
 retrieved as if those columns existed in the schema.
 
 >These nonexistent columns of data are called `slots`. So, a `slot` is a
->field on your model that doesn't really exist in the schema
+>field on your model that doesn't really exist in the schema.
 
 Suppose the following model exists:
 
@@ -13,20 +13,22 @@ Suppose the following model exists:
       columns:
         title:    string(255)
         body:     clob
+      actAs:
+        sfDoctrineSlotTemplate
 
 A "fake" column `link_url` could be added to any `Blog` record:
 
-    $blog = Doctrine_Core::getTable('Blog')->find(1);
+    $blog = new Blog();
 
-    // register the pseudo field "link_url"
+    // register the pseudo field "link_url"s a "url" type
     $blog->createSlot('link_url', 'url');
 
     // now use the field as if it were a real field
     $blog->link_url = 'http://www.sympalphp.org';
     echo $blog->link_url;
 
-The second argument to `createSlot` is a `type`, which defines its
-widget and validator.
+The second argument to `createSlot()` is a `type`, which defines its
+widget and validator for when used in a form.
 
 The data is actually stored in a separate table, `sfDoctrineSlot`, and
 related to the `Blog` model via a many-to-many table (`BlogSlot`) that
